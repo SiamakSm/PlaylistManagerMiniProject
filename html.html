@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>Audio Playlist</h1>
+
+    <input id="fileInput" type="file" multiple accept="audio/*" hidden>
+    <button id="pickBtn">Choose audio files</button>
+
+    <div id="dropZone" tabindex="0">Drop audio files here</div>
+
+    <ul id="playlist">
+    </ul>
+
+    <audio id="player" controls></audio>
+
+    <div id="errorBox"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
