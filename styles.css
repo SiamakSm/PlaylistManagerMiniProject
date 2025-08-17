@@ -2,3 +2,18 @@
     box-sizing: border-box;
     background-color: #345d80;
 }
+    li {
+        height: 25px;
+    }
+    
+    #dropZone {
+        background-color: #4c79a1;
+        width: 400px;
+        height: 50px;
+        text-align: center;
+    }
+    
+    #playlist li.selected {
+        background-color: lightblue;
+        font-weight: bold;
+}

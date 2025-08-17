@@ -4,6 +4,8 @@ const dropZone = document.getElementById("dropZone");
 const playlist = document.getElementById("playlist");
 const player = document.getElementById("player");
 const errorBox = document.getElementById("errorBox");
+const nextBtn = document.getElementById("nextBtn");
+const prevBtn = document.getElementById("prevBtn");
 const tracks = [];
 let currentIndex = -1;
 
@@ -23,6 +25,25 @@ fileInput.addEventListener("change", (e) => {
     addFile(e.target.files);
 });
 
+prevBtn.addEventListener("click", function () {
+    if (currentIndex == -1) return;
+    const listCount = document.querySelectorAll("#playlist li").length;
+
+    if (currentIndex == 0) {
+        currentIndex = listCount;
+    }
+    playBtn(currentIndex - 1);
+});
+ 
+nextBtn.addEventListener("click", function () {
+    if (currentIndex == -1) return;
+    const listCount = document.querySelectorAll("#playlist li").length;
+
+    if (currentIndex >= listCount - 1) {
+        currentIndex = -1;
+    }
+    playBtn(currentIndex + 1);
+});
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -30,13 +51,15 @@ fileInput.addEventListener("change", (e) => {
 function addFile(files) {
     Array.from(files).forEach(file => {
         if (file.type.startsWith("audio/")) {
-            //console.log(file.name);
-            const track = {
-                name: file.name,
-                src: URL.createObjectURL(file),
-                size: file.size
+            const exists = tracks.some(track => track.name === file.name);
+            if (!exists) {
+                const track = {
+                    name: file.name,
+                    src: URL.createObjectURL(file),
+                    size: file.size
+                };
+                tracks.push(track);
             };
-            tracks.push(track);
         } else {
             errorBox.innerHTML = `The file ${file.name} is a ${file.type}`;
         };
@@ -49,57 +72,59 @@ function renderPlaylist(tracks) {
     playlist.innerHTML = "";
     tracks.forEach((track, index) => {
         const li = document.createElement("li");
-        li.textContent = track.name;
+        li.textContent = ` ` + track.name;
         li.dataset.index = index;
 
         const button = document.createElement("button");
         button.textContent = "▶";
         button.className = "play";
-        button.addEventListener("click", () => playBtnClicked(track, index));
+        button.addEventListener("click", () => playBtn(index)); 
 
         li.appendChild(button);
         playlist.appendChild(li);
-
     });
 };
 
-function playBtnClicked(track, index) {
+function playBtn(index) {
     if (currentIndex === index && !player.paused) {
         player.pause();
     } else {
         if (currentIndex !== index) {
-            player.src = track.src;
+            player.src = tracks[index].src;
             currentIndex = index;
         };
         player.play();
     };
+    highlight(index);
 };
 
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
+function highlight(index) {
+    document.querySelectorAll("#playlist li").forEach(li => {
+        li.classList.remove("selected");
+    });
 
+    const li = document.querySelector(`li[data-index="${index}"]`);
+    if (li) li.classList.add("selected");
+}
+
+
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 dropZone.addEventListener("dragenter", function (e) {
     e.preventDefault();
     e.stopPropagation();
-    //console.log("dragenter");
-
 });
 dropZone.addEventListener("dragover", function (e) {
     e.preventDefault();
     e.stopPropagation();
-    //console.log("dragover");
-
-
 });
 dropZone.addEventListener("drop", function (e) {
     e.preventDefault();
     e.stopPropagation();
-    //console.log("drop");
 
     let dropedFiles = e.dataTransfer.files;
-    //console.log(dropedFiles);
     addFile(dropedFiles);
-
 });
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////

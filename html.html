@@ -9,14 +9,17 @@
 <body>
     <h1>Audio Playlist</h1>
 
-    <input id="fileInput" type="file" multiple accept="audio/*" hidden>
-    <button id="pickBtn">Choose audio files</button>
-
-    <div id="dropZone" tabindex="0">Drop audio files here</div>
+    <div id="dropZone" tabindex="0">Drop audio files here
+        <input id="fileInput" type="file" multiple accept="audio/*" hidden>
+        <button id="pickBtn">Choose audio files</button>
+    </div>
 
     <ul id="playlist">
     </ul>
-
+    <div id="nextPrev">
+        <button id="prevBtn">⏮</button>
+        <button id="nextBtn">⏭</button>
+    </div>
     <audio id="player" controls hidden></audio>
 
     <div id="errorBox"></div>
