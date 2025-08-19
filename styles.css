@@ -1,19 +1,111 @@
+/* General reset and font */
 * {
     box-sizing: border-box;
-    background-color: #345d80;
+    margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
 }
-    li {
-        height: 25px;
-    }
-    
-    #dropZone {
-        background-color: #4c79a1;
-        width: 400px;
-        height: 50px;
+body {
+    background-color: #f4f4f9;
+    padding: 20px;
+    color: #333;
+}
+/* Headline */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Drop zone */
+#dropZone {
+    border: 2px dashed #888;
+        padding: 20px;
         text-align: center;
+    margin-bottom: 20px;
+        border-radius: 8px;
+        background-color: #fff;
+        cursor: pointer;
     }
     
-    #playlist li.selected {
-        background-color: lightblue;
-        font-weight: bold;
+    #dropZone.active {
+        border-color: #007bff;
+        background-color: #e6f0ff;
+    }
+    
+    /* Playlist */
+    #playlist {
+        list-style: none;
+        margin-bottom: 20px;
+    }
+    
+    #playlist li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;
+        border-bottom: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 5px;
+        background-color: #fff;
+}
+
+#playlist li.selected {
+    background-color: #d9edf7;
+    }
+    
+    /* Buttons in playlist */
+    .play,
+    .deleteButton {
+        margin-left: 5px;
+        cursor: pointer;
+        padding: 2px 6px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: white;
+        font-size: 14px;
+    }
+    
+    .deleteButton {
+        background-color: #dc3545;
+    }
+    
+    /* Time & progress */
+    #timeBox {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    
+    #progressBar {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Next / Previous buttons */
+    #nextPrev {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    #nextPrev button {          
+        margin: 0 5px;
+        padding: 6px 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+    
+    /* Volume */
+    input[type="range"] {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    /* Error Box */
+    #errorBox {
+        color: #dc3545;
+        text-align: center;
+        margin-top: 10px;
 }

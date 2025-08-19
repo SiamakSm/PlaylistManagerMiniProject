@@ -6,7 +6,11 @@ const player = document.getElementById("player");
 const errorBox = document.getElementById("errorBox");
 const nextBtn = document.getElementById("nextBtn");
 const prevBtn = document.getElementById("prevBtn");
-const tracks = [];
+const volumeControl = document.getElementById("volumeControl");
+const timeBox = document.getElementById("timeBox");
+const progressBar = document.getElementById("progressBar");
+
+let tracks = [];
 let currentIndex = -1;
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +20,7 @@ errorBox.textContent = "";
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+
 
 pickBtn.addEventListener("click", () => {
     fileInput.click();
@@ -32,18 +37,43 @@ prevBtn.addEventListener("click", function () {
     if (currentIndex == 0) {
         currentIndex = listCount;
     }
-    playBtn(currentIndex - 1);
+    playMusic(currentIndex - 1);
 });
  
 nextBtn.addEventListener("click", function () {
     if (currentIndex == -1) return;
-    const listCount = document.querySelectorAll("#playlist li").length;
 
-    if (currentIndex >= listCount - 1) {
+    if (currentIndex >= tracks.length - 1) {
         currentIndex = -1;
-    }
-    playBtn(currentIndex + 1);
+    };
+    playMusic(currentIndex + 1);
 });
+
+player.addEventListener("ended", () => {
+    nextBtn.click();
+});
+
+volumeControl.addEventListener("input", () => {
+    player.volume = volumeControl.value;
+});
+
+player.addEventListener("timeupdate", () => {
+    const current = player.currentTime;
+    const duration = player.duration;
+
+    if (!isNaN(duration)) {
+        timeBox.textContent = formatTime(current) + " / " + formatTime(duration);
+        progressBar.value = (current / duration) * 100;
+    };
+});
+
+progressBar.addEventListener("input", function () {
+    const duration = player.duration;
+    if (!isNaN(duration)) {
+        player.currentTime = (progressBar.value * duration) / 100;
+    };
+});
+
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -75,17 +105,22 @@ function renderPlaylist(tracks) {
         li.textContent = ` ` + track.name;
         li.dataset.index = index;
 
-        const button = document.createElement("button");
-        button.textContent = "▶";
-        button.className = "play";
-        button.addEventListener("click", () => playBtn(index)); 
+        const playButton = document.createElement("playButton");
+        playButton.textContent = "▶";
+        playButton.className = "play";
+        playButton.addEventListener("click", () => playMusic(index));
 
-        li.appendChild(button);
+        const deleteButton = document.createElement("deleteButton");
+        deleteButton.textContent = "✖";
+        deleteButton.addEventListener("click", () => deleteMusic(track));
+
+        li.appendChild(deleteButton);
+        li.appendChild(playButton);
         playlist.appendChild(li);
     });
 };
 
-function playBtn(index) {
+function playMusic(index) {
     if (currentIndex === index && !player.paused) {
         player.pause();
     } else {
@@ -96,9 +131,11 @@ function playBtn(index) {
         player.play();
     };
     highlight(index);
-};
+}; 
 
 function highlight(index) {
+    if (index === -1) return;
+
     document.querySelectorAll("#playlist li").forEach(li => {
         li.classList.remove("selected");
     });
@@ -107,8 +144,30 @@ function highlight(index) {
     if (li) li.classList.add("selected");
 }
 
+function deleteMusic(file) {
+    const deletedIndex = tracks.findIndex(track => track.name === file.name);
+
+    tracks = tracks.filter(track => track.name !== file.name);
+
+    if (deletedIndex === currentIndex) {
+        player.pause();
+        player.src = "";
+        currentIndex = -1;
+    } else if (deletedIndex < currentIndex) {
+        currentIndex--;
+    };
+
+    renderPlaylist(tracks);
+    highlight(currentIndex);
+}
 
 
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+
+};
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 dropZone.addEventListener("dragenter", function (e) {
