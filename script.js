@@ -80,7 +80,11 @@ progressBar.addEventListener("input", function () {
 
 function addFile(files) {
     Array.from(files).forEach(file => {
-        if (file.type.startsWith("audio/")) {
+        try {
+            if (!file.type.startsWith("audio/")) {
+                throw new Error(`The file ${file.name} is a ${file.type}.`);
+            };
+
             const exists = tracks.some(track => track.name === file.name);
             if (!exists) {
                 const track = {
@@ -90,8 +94,9 @@ function addFile(files) {
                 };
                 tracks.push(track);
             };
-        } else {
-            errorBox.innerHTML = `The file ${file.name} is a ${file.type}`;
+
+        } catch (err) {
+            errorBox.innerHTML += `<br>${err.message}</br>`;
         };
     });
 
@@ -101,19 +106,31 @@ function addFile(files) {
 function renderPlaylist(tracks) {
     playlist.innerHTML = "";
     tracks.forEach((track, index) => {
+
         const li = document.createElement("li");
         li.textContent = ` ` + track.name;
         li.dataset.index = index;
 
-        const playButton = document.createElement("playButton");
+
+        const playButton = document.createElement("button");
         playButton.textContent = "▶";
         playButton.className = "play";
-        playButton.addEventListener("click", () => playMusic(index));
 
-        const deleteButton = document.createElement("deleteButton");
+        const deleteButton = document.createElement("button");
         deleteButton.textContent = "✖";
-        deleteButton.addEventListener("click", () => deleteMusic(track));
+        deleteButton.className = "delete";
 
+        const starButton = document.createElement("span");
+        starButton.textContent = "☆";
+        starButton.className = "favorite";
+
+        const infoButton = document.createElement("button");
+        infoButton.textContent = "ℹ";
+        infoButton.className = "info";
+
+
+        li.appendChild(infoButton);
+        li.appendChild(starButton);
         li.appendChild(deleteButton);
         li.appendChild(playButton);
         playlist.appendChild(li);
@@ -142,7 +159,7 @@ function highlight(index) {
 
     const li = document.querySelector(`li[data-index="${index}"]`);
     if (li) li.classList.add("selected");
-}
+};
 
 function deleteMusic(file) {
     const deletedIndex = tracks.findIndex(track => track.name === file.name);
@@ -153,14 +170,14 @@ function deleteMusic(file) {
         player.pause();
         player.src = "";
         currentIndex = -1;
+        errorBox.innerHTML = ""; 
     } else if (deletedIndex < currentIndex) {
         currentIndex--;
     };
 
     renderPlaylist(tracks);
     highlight(currentIndex);
-}
-
+};
 
 function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
@@ -168,6 +185,12 @@ function formatTime(seconds) {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 
 };
+
+function showInfos(texte, size = "less than 7") {
+    errorBox.innerHTML = `${texte} ${this.name}, Size: ${size} MegaBytes.`;
+};
+
+
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 dropZone.addEventListener("dragenter", function (e) {
@@ -184,6 +207,42 @@ dropZone.addEventListener("drop", function (e) {
 
     let dropedFiles = e.dataTransfer.files;
     addFile(dropedFiles);
+
 });
+
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+
+playlist.addEventListener("click", (event) => {
+    if (event.target.classList.contains("favorite")) {
+        event.target.textContent = event.target.textContent === "☆" ? "⭐" : "☆";
+    };
+
+    if (event.target.textContent === ("✖")) {
+        alert(`${event.target.closest("li").textContent} is deleted.`);
+    };
+
+    if (event.target.classList.contains("play")) {
+        const index = parseInt(event.target.closest("li").dataset.index);
+        playMusic(index);
+    };
+
+    if (event.target.classList.contains("delete")) {
+        const index = parseInt(event.target.closest("li").dataset.index);
+        deleteMusic(tracks[index]);
+    };
+
+    if (event.target.textContent === ("ℹ")) {
+        const index = parseInt(event.target.closest("li").dataset.index);
+        const size = tracks[index].size;
+        if (size > 7000000) {
+            showInfos.apply(tracks[index], ["Now Playing:", (tracks[index].size / 1000000).toFixed(2)]);
+        } else {
+            showInfos.call(tracks[index], "Now Playing:");
+        };
+    };
+});
+
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+
