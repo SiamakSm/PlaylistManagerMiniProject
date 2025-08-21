@@ -9,6 +9,8 @@ const prevBtn = document.getElementById("prevBtn");
 const volumeControl = document.getElementById("volumeControl");
 const timeBox = document.getElementById("timeBox");
 const progressBar = document.getElementById("progressBar");
+const inputSearch = document.getElementById("inputSearch");
+const searchBtn = document.getElementById("searchBtn");
 
 let tracks = [];
 let currentIndex = -1;
@@ -74,7 +76,11 @@ progressBar.addEventListener("input", function () {
     };
 });
 
+searchBtn.addEventListener("click", () => {
+    const query = inputSearch.value.trim();
+    api(query, 1);
 
+});
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
@@ -190,7 +196,15 @@ function showInfos(texte, size = "less than 7") {
     errorBox.innerHTML = `${texte} ${this.name}, Size: ${size} MegaBytes.`;
 };
 
-
+function addApiTrack(track) {
+    const newTrack = {
+        name: `${track.title} - ${track.artist.name}`,
+        src: track.preview,
+        size: "Not Defined"
+    };
+    tracks.push(newTrack);
+    renderPlaylist(tracks);
+}
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 dropZone.addEventListener("dragenter", function (e) {
@@ -246,3 +260,36 @@ playlist.addEventListener("click", (event) => {
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
+async function api(query, n) {
+    const url = `https://deezerdevs-deezer.p.rapidapi.com/search?q=${encodeURIComponent(query)}&limit=${n}`;
+    const res = await fetch(url, {
+        method: "GET",
+        headers: {
+            "x-rapidapi-host": "deezerdevs-deezer.p.rapidapi.com",
+            "x-rapidapi-key": "8ebe86b2c0mshe3d9c33bec9d169p183fcejsnb1d4b746f339"
+        }
+    });
+
+    const data = await res.json();
+    data.data.forEach(track => {
+        console.log(track);
+        addApiTrack(track);
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+Numéro de réseau : 50107
+Fréquence d'installation : 258000
+*/
