@@ -109,3 +109,39 @@ h1 {
         text-align: center;
         margin-top: 10px;
 }
+
+
+/* Container du search */
+#inputSearch, #searchBtn {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin: 5px 2px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+/* Input de recherche */
+#inputSearch {
+    width: 200px;
+}
+
+/* Bouton Search */
+#searchBtn {
+    background-color: #4CAF50; /* vert */
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+#searchBtn:hover {
+    background-color: #45a049;
+}
+
+/* Focus sur input */
+#inputSearch:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}

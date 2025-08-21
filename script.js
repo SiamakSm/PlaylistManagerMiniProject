@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+// DECLERATIONS
+
 const fileInput = document.getElementById("fileInput");
 const pickBtn = document.getElementById("pickBtn");
 const dropZone = document.getElementById("dropZone");
@@ -14,15 +18,12 @@ const searchBtn = document.getElementById("searchBtn");
 
 let tracks = [];
 let currentIndex = -1;
-
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-
 errorBox.textContent = "";
 
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+// EVENTLISTENERS
 
 pickBtn.addEventListener("click", () => {
     fileInput.click();
@@ -83,6 +84,7 @@ searchBtn.addEventListener("click", () => {
 });
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+// FUNCTIONS
 
 function addFile(files) {
     Array.from(files).forEach(file => {
@@ -196,17 +198,22 @@ function showInfos(texte, size = "less than 7") {
     errorBox.innerHTML = `${texte} ${this.name}, Size: ${size} MegaBytes.`;
 };
 
-function addApiTrack(track) {
+function addApiTrack(trackApi) {
+    const exists = tracks.some(track => track.name === `${trackApi.title} - ${trackApi.artist.name}`);
+    if (!exists) {
     const newTrack = {
-        name: `${track.title} - ${track.artist.name}`,
-        src: track.preview,
+        name: `${trackApi.title} - ${trackApi.artist.name}`,
+        src: trackApi.preview,
         size: "Not Defined"
     };
     tracks.push(newTrack);
     renderPlaylist(tracks);
+    };
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+// DRAG & DROP ZONE
+
 dropZone.addEventListener("dragenter", function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -226,6 +233,7 @@ dropZone.addEventListener("drop", function (e) {
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+// DELEGATION
 
 playlist.addEventListener("click", (event) => {
     if (event.target.classList.contains("favorite")) {
@@ -259,6 +267,7 @@ playlist.addEventListener("click", (event) => {
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+// API
 
 async function api(query, n) {
     const url = `https://deezerdevs-deezer.p.rapidapi.com/search?q=${encodeURIComponent(query)}&limit=${n}`;
@@ -272,10 +281,9 @@ async function api(query, n) {
 
     const data = await res.json();
     data.data.forEach(track => {
-        console.log(track);
         addApiTrack(track);
     });
-}
+};
 
 
 
@@ -287,9 +295,3 @@ async function api(query, n) {
 
 
 
-
-
-/*
-Numéro de réseau : 50107
-Fréquence d'installation : 258000
-*/
