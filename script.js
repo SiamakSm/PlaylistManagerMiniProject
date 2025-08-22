@@ -136,7 +136,11 @@ function renderPlaylist(tracks) {
         infoButton.textContent = "ℹ";
         infoButton.className = "info";
 
+        const downloadButton = document.createElement("button");
+        downloadButton.textContent = "⤓";
+        downloadButton.className = "download";
 
+        li.appendChild(downloadButton);
         li.appendChild(infoButton);
         li.appendChild(starButton);
         li.appendChild(deleteButton);
@@ -191,7 +195,6 @@ function formatTime(seconds) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-
 };
 
 function showInfos(texte, size = "less than 7") {
@@ -210,6 +213,53 @@ function addApiTrack(trackApi) {
     renderPlaylist(tracks);
     };
 }
+// async/await + try/catch
+async function downloadMusic1(file) {
+    try {
+        const url = file.src;
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = file.name;
+        const success = link.click();
+        URL.revokeObjectURL(link.href);
+        return `${file.name} is downloaded ✅`;
+    } catch (err) {
+        throw `Error : Download "${file.name}" failed`;
+    };
+};
+// promise direct .then()/.catch()
+function downloadMusic2(file) {
+    const url = file.src;
+    const link = document.createElement("a");
+    return fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+            link.href = URL.createObjectURL(blob);
+            link.download = file.name;
+            link.click();
+            URL.revokeObjectURL(link.href)
+            return `${file.name} is downloaded ✅`;
+        })
+        .catch(err => { throw `Error : Download "${file.name}" failed` });
+};
+// new Promise(resolve, reject)
+function downloadMusic3(file) {
+    return new Promise((resolve, reject) => {
+        fetch(file.src)
+            .then(response => response.blob())
+            .then(blob => {
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = file.name;
+                link.click();
+                URL.revokeObjectURL(link.href)
+                resolve(`${file.name} is downloaded ✅`)
+            })
+            .catch(err => reject(`Error : ${err}, Download "${file.name}" failed`))
+    });
+};
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 // DRAG & DROP ZONE
@@ -263,6 +313,13 @@ playlist.addEventListener("click", (event) => {
             showInfos.call(tracks[index], "Now Playing:");
         };
     };
+
+    if (event.target.classList.contains("download")) {
+        const index = parseInt(event.target.closest("li").dataset.index);
+        downloadMusic3(tracks[index])
+            .then(msg => errorBox.innerHTML = msg)
+            .catch(err => errorBox.innerHTML = err);
+    };
 });
 
 ///////////////////////////////////////////////////////////////////
@@ -270,7 +327,8 @@ playlist.addEventListener("click", (event) => {
 // API
 
 async function api(query, n) {
-    const url = `https://deezerdevs-deezer.p.rapidapi.com/search?q=${encodeURIComponent(query)}&limit=${n}`;
+    if (query) {
+        const url = `https://deezerdevs-deezer.p.rapidapi.com/search?q=${encodeURIComponent(query)}&limit=${n}`;
     const res = await fetch(url, {
         method: "GET",
         headers: {
@@ -283,15 +341,46 @@ async function api(query, n) {
     data.data.forEach(track => {
         addApiTrack(track);
     });
+    }
+
 };
 
 
 
 
 
+/*
+function downloadMusic(filename) {
+    return new Promise((resolve, reject) => {
+        const url = filename.src;
+        const response = fetch(url);
+        const blob = response.blob();
+        const link = document.createElement("a");
+        link.href = url.createObjectURL(blob);
+        link.download = filename;
+        const success = 
+        if (success) {
+            resolve(`${filename} is downloaded ✅`);
+        } else {
+            reject(`Error : Download "${filename}" failed`);
+        };
+        URL.revokeObjectURL(link.href);
+    });
+}
+*/
 
+/*
+function getUser() {
+    return new Promise((resolve, reject) => {
+        fetch("https://jsonplaceholder.typicode.com/users/3")
+            .then(response => response.json())
+            .then(data => resolve(`✅ Utilisateur : ${data.name}`))
+            .catch(err => reject(`❌ Erreur : ${err}`));
+    });
+}
 
-
-
-
-
+// Utilisation
+getUser()
+    .then(msg => console.log(msg))
+    .catch(err => console.error(err));
+    */
